@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "myapp"
         EC2_IP     = "13.60.157.119" 
-        EC2_USER   = "ec2-user"   
+        EC2_USER   = "ubuntu"   
     }
 
     stages {
@@ -33,15 +33,15 @@ pipeline {
                     # 1. Compress the local Docker image into a tar archive
                     docker save -o myapp.tar $IMAGE_NAME
 
-                    # 2. Transfer the image file using the secret path variable
+                    # 2. Transfer the image file to the Ubuntu home directory
                     scp -i $EC2_KEY -o StrictHostKeyChecking=no myapp.tar ${EC2_USER}@${EC2_IP}:/home/${EC2_USER}/myapp.tar
 
-                    # 3. SSH in to unpack and run the container
+                    # 3. SSH into Ubuntu server to unpack and run the container with sudo permissions
                     ssh -i $EC2_KEY -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_IP} "
-                        docker load -i /home/${EC2_USER}/myapp.tar &&
-                        docker stop app || true &&
-                        docker rm app || true &&
-                        docker run -d -p 80:80 --name app $IMAGE_NAME &&
+                        sudo docker load -i /home/${EC2_USER}/myapp.tar &&
+                        sudo docker stop app || true &&
+                        sudo docker rm app || true &&
+                        sudo docker run -d -p 80:80 --name app $IMAGE_NAME &&
                         rm /home/${EC2_USER}/myapp.tar
                     "
 
