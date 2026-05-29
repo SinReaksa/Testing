@@ -28,7 +28,6 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Uses core Jenkins 'withCredentials' to handle the key file
                 withCredentials([file(credentialsId: 'ec2-server-key', variable: 'EC2_KEY')]) {
                     sh '''
                     # 1. Compress the local Docker image into a tar archive
