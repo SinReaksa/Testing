@@ -1,14 +1,8 @@
-FROM node:20
-
-WORKDIR /app
-COPY . .
-RUN npm install
-EXPOSE 3000
-CMD ["npm","start"]# Use the official Nginx image as the base container
+# Use the official lightweight Nginx image
 FROM nginx:alpine
 
-# Copy all the bakery website template files into the default Nginx web root directory
+# Copy all the static HTML/CSS website files into Nginx's public directory
 COPY . /usr/share/nginx/html/
 
-# Expose port 80 to make the container accessible
+# Expose port 80 to web traffic
 EXPOSE 80
