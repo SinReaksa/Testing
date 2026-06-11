@@ -24,6 +24,29 @@ pipeline {
             steps {
                 sh 'echo "Running tests..."'
             }
+            scp -o StrictHostKeyChecking=no docker-compose.yml ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/
+                            ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} '
+                                cd ${REMOTE_PATH}
+                                sudo docker compose down
+                                sudo docker images -q | xargs -r docker rmi -f
+                                sudo docker compose up -d
+                            '
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Deployment completed successfully for version $IMAGE_NAME:${params.TAG}"
+        }
+        failure {
+            echo "❌ Build or deploy failed!"
+        }
+    }
+}
         }
 
         stage('Deploy') {
